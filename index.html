@@ -292,6 +292,9 @@ td.r,th.r{text-align:right}td.act{white-space:nowrap;text-align:right}
         </div>
         <div class="row" style="margin-top:14px"><button class="btn primary" id="saveSettings">Ayarları kaydet</button></div>
       </div>
+      <div class="card"><div class="row"><h2 style="margin:0">Yöneticiler</h2><span style="flex:1"></span><button class="btn brand" id="addAdmin">+ Yönetici ekle</button></div>
+        <p class="muted" style="margin:8px 0 12px">Yöneticiler sizinle aynı yetkiye sahiptir: tüm mağazaları görür, menüyü, fiyatları ve personeli yönetir.</p>
+        <table id="adminTable"></table></div>
       <div class="card"><h2>Hesap</h2><p class="muted" id="ownerInfo"></p><button class="btn bad" id="ownerSignOut">Bu cihazdan çıkış yap</button></div>
     </div></section>
   </main>
@@ -342,6 +345,13 @@ td.r,th.r{text-align:right}td.act{white-space:nowrap;text-align:right}
   <label>Mağaza şifresi (en az 6 karakter)</label><input id="snPass" type="text" autocomplete="off">
   <p class="muted" style="font-size:14px">Bu e-posta ve şifre, mağazadaki iPad/bilgisayarda <b>bir kez</b> girilir. Gerçek bir e-posta adresi olması gerekmez. Mağaza için başlangıç personeli: <b>Müdür (PIN 1234)</b> ve <b>Kasiyer (PIN 1111)</b>.</p>
   <div class="row" style="margin-top:16px"><span style="flex:1"></span><button class="btn" id="snCancel">Vazgeç</button><button class="btn primary" id="snSave">Mağazayı oluştur</button></div>
+</div></div>
+<div class="modal" id="mAdmin"><div class="box">
+  <h2>Yeni yönetici</h2>
+  <label>E-posta</label><input id="adEmail" type="email" autocapitalize="off">
+  <label>Şifre (en az 6 karakter)</label><input id="adPass" type="text" autocomplete="off">
+  <p class="muted" style="font-size:14px">Bu kişi bu e-posta ve şifreyle giriş yapar ve tüm mağazaları yönetebilir.</p>
+  <div class="row" style="margin-top:16px"><span style="flex:1"></span><button class="btn" id="adCancel">Vazgeç</button><button class="btn primary" id="adSave">Yönetici ekle</button></div>
 </div></div>
 <div class="modal" id="mApprove"><div class="box">
   <h2>Müdür onayı</h2><div class="muted" id="apMsg"></div><div class="dots" id="apDots"></div>

@@ -1,6 +1,6 @@
 /* Doruk Kasa - çevrimdışı çalışma için önbellek.
    Uygulama dosyaları güncellendiğinde VERSION değerini artırın (v3, v4...). */
-const VERSION = "doruk-kasa-v2";
+const VERSION = "doruk-kasa-v3";
 const FILES = ["./", "./index.html", "./app.js", "./config.js", "./logo.jpg", "./manifest.webmanifest",
   "./icons/apple-touch-icon.png", "./icons/icon-192.png", "./icons/icon-512.png"];
 const FB = "https://www.gstatic.com/firebasejs/";

@@ -50,6 +50,7 @@ const authErr = e => {
   if (c.includes("invalid-credential") || c.includes("wrong-password") || c.includes("user-not-found")) return "E-posta veya şifre hatalı.";
   if (c.includes("email-already-in-use")) return "Bu e-posta zaten kullanılıyor.";
   if (c.includes("invalid-email")) return "Geçersiz e-posta adresi.";
+  if (c.includes("operation-not-allowed")) return "Firebase'de E-posta/Şifre girişi açık değil (Authentication → Sign-in method).";
   if (c.includes("weak-password")) return "Şifre en az 6 karakter olmalı.";
   if (c.includes("network")) return "İnternet bağlantısı yok. İlk giriş için internet gerekir.";
   if (c.includes("too-many")) return "Çok fazla deneme. Biraz bekleyip tekrar deneyin.";
@@ -503,6 +504,7 @@ function renderSettings() {
   $("#setCashReport").checked = !!s.cashReport; $("#setCashVoid").checked = !!s.cashVoid; $("#setTaxIncl").checked = !!s.taxIncl;
   $("#logoPrev").style.backgroundImage = `url('${logo()}')`;
   $("#ownerInfo").textContent = "Giriş yapan: " + (S.user && S.user.email);
+  loadAdmins();
 }
 $("#logoFile").onchange = e => { const f = e.target.files[0]; if (!f) return; loadImage(f, 480, 480, "contain", d => { dbSet("settings/main", { logo: d }, true); toast("Logo güncellendi"); }); e.target.value = ""; };
 $("#logoReset").onclick = () => dbSet("settings/main", { logo: null }, true);
@@ -515,6 +517,33 @@ $("#saveSettings").onclick = () => {
     cashReport: $("#setCashReport").checked, cashVoid: $("#setCashVoid").checked, taxIncl: $("#setTaxIncl").checked
   }, true);
   toast("Ayarlar kaydedildi (tüm mağazalarda geçerli)");
+};
+/* ---------- Yöneticiler (sahip hesapları) ---------- */
+let admins = [];
+async function loadAdmins() {
+  try { admins = await DB.query("accounts", [["role", "==", "owner"]]); } catch (e) { admins = []; }
+  $("#adminTable").innerHTML = `<tr><th>E-posta</th><th></th></tr>` + admins.map(a => `<tr><td><b>${esc(a.email || a.id)}</b>${S.user && a.id === S.user.uid ? ' <span class="muted">(siz)</span>' : ""}</td>
+    <td class="act">${S.user && a.id === S.user.uid ? "" : `<button class="btn sm bad" data-adel="${a.id}">Kaldır</button>`}</td></tr>`).join("");
+}
+$("#adminTable").addEventListener("click", e => {
+  const b = e.target.closest("[data-adel]"); if (!b) return;
+  const a = admins.find(x => x.id === b.dataset.adel); if (!a) return;
+  if (admins.length <= 1) { toast("En az bir yönetici olmalı"); return; }
+  if (!confirm(`"${a.email}" yöneticilikten kaldırılsın mı? Bu hesap artık hiçbir şeye erişemez.`)) return;
+  DB.remove("accounts/" + a.id).then(() => { toast("Kaldırıldı"); loadAdmins(); }).catch(x => toast(authErr(x)));
+});
+$("#addAdmin").onclick = () => { $("#adEmail").value = ""; $("#adPass").value = ""; openM("#mAdmin"); };
+$("#adCancel").onclick = () => closeM("#mAdmin");
+$("#adSave").onclick = async () => {
+  const email = $("#adEmail").value.trim(), pass = $("#adPass").value;
+  if (!email || pass.length < 6) { toast("E-posta ve en az 6 karakterli şifre girin"); return; }
+  $("#adSave").disabled = true;
+  try {
+    const uid = await DB.createAccount(email, pass);
+    await DB.write("accounts/" + uid, { role: "owner", email, addedBy: S.user.email, at: Date.now() });
+    closeM("#mAdmin"); toast("Yönetici eklendi: " + email); loadAdmins();
+  } catch (x) { toast(authErr(x)); }
+  $("#adSave").disabled = false;
 };
 $("#ownerSignOut").onclick = () => { if (confirm("Bu cihazdan çıkış yapılsın mı?")) DB.signOut(); };
 
