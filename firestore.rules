@@ -1,0 +1,39 @@
+rules_version = '2';
+// Doruk Kasa güvenlik kuralları
+// Firebase konsolu → Firestore Database → Kurallar (Rules) sekmesine bu dosyanın tamamını yapıştırıp "Yayınla" deyin.
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function signedIn() { return request.auth != null; }
+    function accPath() { return /databases/$(db)/documents/accounts/$(request.auth.uid); }
+    function hasAcc() { return signedIn() && exists(accPath()); }
+    function isOwner() { return hasAcc() && get(accPath()).data.role == 'owner'; }
+    function isStore(sid) { return hasAcc() && get(accPath()).data.role == 'store' && get(accPath()).data.storeId == sid; }
+
+    // İlk kurulum: sahip bilgisi (sadece bir kez oluşturulabilir)
+    match /meta/owner {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+    // Hesap → rol eşlemesi
+    match /accounts/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isOwner());
+      allow create: if isOwner() || (signedIn() && uid == request.auth.uid
+                      && request.resource.data.role == 'owner'
+                      && get(/databases/$(db)/documents/meta/owner).data.uid == request.auth.uid);
+      allow update, delete: if isOwner();
+    }
+    // Ortak menü ve ayarlar: herkes (giriş yapmış) okur, sadece sahip değiştirir
+    match /settings/{d} { allow read: if hasAcc(); allow write: if isOwner(); }
+    match /cats/{d}     { allow read: if hasAcc(); allow write: if isOwner(); }
+    match /items/{d}    { allow read: if hasAcc(); allow write: if isOwner(); }
+    // Mağazalar: sahip hepsini, mağaza cihazı sadece kendisini görür
+    match /stores/{sid} {
+      allow read: if isOwner() || isStore(sid);
+      allow write: if isOwner();
+      match /{sub=**} {
+        allow read, write: if isOwner() || isStore(sid);
+      }
+    }
+  }
+}

@@ -1,7 +1,8 @@
-# Doruk Ciğerim Kasa
+# Doruk Ciğerim Kasa (çok mağazalı)
 
-Doruk Ciğerim için kasa (POS) uygulaması. iPad'de ana ekran uygulaması olarak, Windows'ta `DorukKasa.exe` ile çalışır.
+- Sahip: tüm mağazaları canlı görür, menüyü/fiyatları/personeli yönetir.
+- Her mağaza: kendi giriş hesabı, kendi personeli (Müdür / Kasiyer), kendi raporu.
+- Veriler Google Firebase'de. İnternet kesilirse satışlar cihazda bekler, bağlantı gelince gönderilir.
 
-**iPad kurulumu:** Safari'de bu sitenin bağlantısını açın → Paylaş → **Ana Ekrana Ekle**. Uygulamayı her zaman ana ekrandaki simgeden açın.
-
-Menü, satışlar ve kullanıcılar yalnızca her cihazın kendi içinde saklanır; bu sitede hiçbir satış verisi bulunmaz.
+Dosyalar: `index.html`, `app.js`, `config.js` (Firebase bilgileri), `sw.js`, `manifest.webmanifest`, `logo.jpg`, `icons/`.
+`firestore.rules` → Firebase konsolunda Firestore → Kurallar bölümüne yapıştırılır.
